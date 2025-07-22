@@ -23,9 +23,7 @@ void loop() {
       digitalWrite(yellowPin,HIGH);
       digitalWrite(redPin,LOW);
     }
-    if(newDist < 255){
-      analogWrite(greenPin, newDist);
-    }
+    analogWrite(greenPin, newDist);
     
   }
 }

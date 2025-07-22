@@ -41,40 +41,50 @@ while True:
 
     RGB_Frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hand.process(RGB_Frame)
-    pt1x = 0
-    pt1y = 0
-    pt2x = 0
-    pt2y = 0
+    ptThumbx = 0
+    ptThumby = 0
+    ptIndexx = 0
+    ptIndexy = 0
     dist = 0
-    oldDist = 0
+    fingerDist = 0
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
             for id, landmark in enumerate(hand_landmarks.landmark):
+                if id == 0:
+                    ptPalmx = landmark.x #* w)
+                    ptPalmy = landmark.y#* h)
+                    ptPalmz = landmark.z
+
                 if id == 4:
-                    pt1x = int(landmark.x * w)
-                    pt1y = int(landmark.y * h)
+                    ptThumbx = landmark.x #* w)
+                    ptThumby = landmark.y#* h)
+                    ptThumbz = landmark.z
                 if id == 8:
-                    pt2x = int(landmark.x * w)
-                    pt2y = int(landmark.y * h)
-                    side1 = pt1x - pt2x
-                    side2 = pt1y - pt2y
-                    if side1<0:
-                        side1 = -side1
+                    ptIndexx = landmark.x #* w)
+                    ptIndexy = landmark.y#* h)
+                    ptIndexz = landmark.z
+                if id == 12:
+                    ptMiddlex = landmark.x #* w)
+                    ptMiddley = landmark.y#* h)
+                    ptMiddlez = landmark.z
 
-                    if side2<0:
-                        side2 = -side2
+                    dist = math.sqrt((ptThumbx - ptIndexx)**2 + (ptThumby - ptIndexy)**2 + (ptThumbz - ptIndexz)**2)
+                    handScale = math.sqrt((ptPalmx - ptMiddlex)**2 + (ptPalmy - ptMiddley)**2 + (ptPalmz - ptMiddlez)**2)
+                    fingerDist = dist/handScale
 
-                    if side2 == 0:
-                        dist = side1
-                    elif side1 == 0:
-                        dist = side2
-                    else:
-                        dist = math.sqrt((side1*side1)+(side2*side2))
+                    clamped = max(min(fingerDist,2.0),0.15)
+                    scaledDist = 255 * ((clamped - 0.15)/(2.0 - 0.15)) 
+
+                    print(str(fingerDist))
+                    print(str(scaledDist))
+
+
         if dist>0:
-            serialInst.write((str(dist)+"\n").encode('utf-8'))
+            serialInst.write((str(scaledDist)+"\n").encode('utf-8'))
+           
         mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
         
-    cv2.line(img=frame, pt1=(pt1x,pt1y), pt2=(pt2x,pt2y), color=(255,0,0), thickness=5, lineType=8, shift=0 )
+    cv2.line(img=frame, pt1=(int(ptThumbx*w),int(ptThumby*h)), pt2=(int(ptIndexx*w),int(ptIndexy*h)), color=(255,0,0), thickness=5, lineType=8, shift=0 )
     cv2.imshow("Webcame", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
