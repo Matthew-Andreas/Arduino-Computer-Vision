@@ -75,7 +75,7 @@ while True:
                     fingerDist = dist/handScale
 
                     clamped = max(min(fingerDist,1.20),0.15)
-                    scaledDist = 100 * ((clamped - 0.15)/(1.20 - 0.15)) 
+                    scaledDist = 255 * ((clamped - 0.15)/(1.20 - 0.15)) 
 
 
         if dist>0:

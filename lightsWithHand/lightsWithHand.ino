@@ -15,7 +15,6 @@ void loop() {
   if(Serial.available() > 0){
     String dist = Serial.readStringUntil('\n');
     int newDist = dist.toInt();
-    Serial.println(newDist);
     if (newDist >= 75){
       digitalWrite(yellowPin,LOW);
       digitalWrite(greenPin,LOW);
@@ -31,6 +30,3 @@ void loop() {
     }  
   }
 }
-
-
-//analogWrite(greenPin, newDist);
