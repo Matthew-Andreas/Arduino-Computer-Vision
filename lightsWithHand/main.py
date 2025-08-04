@@ -30,7 +30,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 hand = mp_hands.Hands()
 
-i=0
+#i=0
 
 while True:
     ret, frame = cap.read()
@@ -47,6 +47,7 @@ while True:
     ptIndexy = 0
     dist = 0
     fingerDist = 0
+    scaledDist = 0
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
             for id, landmark in enumerate(hand_landmarks.landmark):
@@ -59,21 +60,22 @@ while True:
                     ptThumbx = landmark.x #* w)
                     ptThumby = landmark.y#* h)
                     ptThumbz = landmark.z
+                if id == 5:
+                    ptUnderIndexx = landmark.x #* w)
+                    ptUnderIndexy = landmark.y#* h)
+                    ptUnderIndexz = landmark.z
                 if id == 8:
                     ptIndexx = landmark.x #* w)
                     ptIndexy = landmark.y#* h)
                     ptIndexz = landmark.z
-                if id == 12:
-                    ptMiddlex = landmark.x #* w)
-                    ptMiddley = landmark.y#* h)
-                    ptMiddlez = landmark.z
+                
 
                     dist = math.sqrt((ptThumbx - ptIndexx)**2 + (ptThumby - ptIndexy)**2 + (ptThumbz - ptIndexz)**2)
-                    handScale = math.sqrt((ptPalmx - ptMiddlex)**2 + (ptPalmy - ptMiddley)**2 + (ptPalmz - ptMiddlez)**2)
+                    handScale = math.sqrt((ptPalmx - ptUnderIndexx)**2 + (ptPalmy - ptUnderIndexy)**2 + (ptPalmz - ptUnderIndexz)**2)
                     fingerDist = dist/handScale
 
-                    clamped = max(min(fingerDist,2.0),0.15)
-                    scaledDist = 255 * ((clamped - 0.15)/(2.0 - 0.15)) 
+                    clamped = max(min(fingerDist,1.20),0.15)
+                    scaledDist = 100 * ((clamped - 0.15)/(1.20 - 0.15)) 
 
                     print(str(fingerDist))
                     print(str(scaledDist))
@@ -85,6 +87,7 @@ while True:
         mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
         
     cv2.line(img=frame, pt1=(int(ptThumbx*w),int(ptThumby*h)), pt2=(int(ptIndexx*w),int(ptIndexy*h)), color=(255,0,0), thickness=5, lineType=8, shift=0 )
+    cv2.putText(frame, str(round(scaledDist,2)),(5,25),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
     cv2.imshow("Webcame", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -16,14 +16,21 @@ void loop() {
     String dist = Serial.readStringUntil('\n');
     int newDist = dist.toInt();
     Serial.println(newDist);
-    if (newDist > 150){
+    if (newDist >= 75){
       digitalWrite(yellowPin,LOW);
+      digitalWrite(greenPin,LOW);
       digitalWrite(redPin,HIGH);
-    }else if(newDist > 50){
+    }else if (newDist > 25){
       digitalWrite(yellowPin,HIGH);
       digitalWrite(redPin,LOW);
-    }
-    analogWrite(greenPin, newDist);
-    
+      digitalWrite(greenPin,LOW);
+    }else if(newDist >= 0){
+      digitalWrite(greenPin,HIGH);
+      digitalWrite(yellowPin,LOW);
+      digitalWrite(redPin,LOW);
+    }  
   }
 }
+
+
+//analogWrite(greenPin, newDist);
